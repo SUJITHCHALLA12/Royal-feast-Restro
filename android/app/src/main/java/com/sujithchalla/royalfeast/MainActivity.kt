@@ -56,6 +56,6 @@ class MainActivity : Activity() {
     }
 
     companion object {
-        private const val SITE_URL = "https://royal-feast.netlify.app/"
+        private const val SITE_URL = "https://royal-feast-restro.vercel.app/"
     }
 }
