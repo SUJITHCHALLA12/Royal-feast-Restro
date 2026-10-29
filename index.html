@@ -66,23 +66,78 @@
   .eyebrow.center{justify-content:center;}
   .eyebrow.center::after{content:"";width:28px;height:1px;background:linear-gradient(90deg,var(--gold),transparent);}
 
-  /* ---------------- preloader ---------------- */
+  /* ---------------- globe intro (inspired by Dribbble WebGL globe shots) ---------------- */
+  body.intro-open{overflow:hidden;}
+  body.intro-open .hero-logo,
+  body.intro-open .hero h1 .line > span,
+  body.intro-open .hero .tagline,
+  body.intro-open .hero .sub,
+  body.intro-open .hero-ctas{animation-play-state:paused;}
   #loader{
-    position:fixed;inset:0;z-index:999;background:var(--black);
-    display:flex;align-items:center;justify-content:center;
-    transition:opacity .8s ease, visibility .8s;
+    position:fixed;inset:0;z-index:999;
+    background:
+      radial-gradient(ellipse at 50% 38%,rgba(92,15,26,.55),transparent 58%),
+      radial-gradient(ellipse at 50% 115%,rgba(205,162,71,.12),transparent 55%),
+      var(--black);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+    padding:24px 18px;text-align:center;
+    transition:opacity .85s ease, visibility .85s;
+    animation:loaderFailsafe .8s ease 8s forwards;
   }
-  #loader.done{opacity:0;visibility:hidden;}
-  .loader-box{position:relative;width:min(220px,50vw);height:min(220px,50vw);display:grid;place-items:center;}
-  .loader-ring{
-    position:absolute;inset:0;border-radius:50%;
-    border:1px solid transparent;border-top-color:var(--gold-hi);border-right-color:var(--gold);
-    animation:spin 1.4s linear infinite;
+  @keyframes loaderFailsafe{to{opacity:0;visibility:hidden;}}
+  #loader.done{opacity:0;visibility:hidden;animation:none;}
+  .globe-stage{
+    position:relative;width:min(400px,76vw);aspect-ratio:1/1;flex-shrink:0;
+    transition:transform 1s var(--ease), opacity .8s ease;
   }
-  .loader-ring.two{inset:12px;border-top-color:transparent;border-left-color:var(--gold-dim);animation-duration:2.2s;animation-direction:reverse;}
-  .loader-logo{width:58%;animation:loaderPulse 1.6s ease-in-out infinite;}
+  #globeCanvas{width:100%;height:100%;display:block;}
+  .globe-flash{
+    position:absolute;inset:12%;border-radius:50%;border:2px solid var(--gold-hi);
+    opacity:0;pointer-events:none;
+  }
+  #loader.opening .globe-flash{animation:globeFlash .9s ease-out both;}
+  @keyframes globeFlash{0%{opacity:.95;transform:scale(.55);}100%{opacity:0;transform:scale(1.9);}}
+  #loader.opening .globe-stage{transform:scale(1.22);opacity:0;}
+  .globe-pin{
+    position:absolute;left:50%;top:36%;width:44px;height:44px;margin-left:-22px;
+    opacity:0;transform:translateY(-26px) scale(.7);pointer-events:none;
+    transition:opacity .45s ease, transform .55s cubic-bezier(.3,1.5,.5,1);
+    filter:drop-shadow(0 8px 16px rgba(0,0,0,.55));
+  }
+  .globe-pin svg{width:100%;height:100%;stroke:var(--gold-hi);fill:rgba(92,15,26,.65);stroke-width:1.4;}
+  #loader.found .globe-pin{opacity:1;transform:none;}
+  .globe-eyebrow{
+    font-family:var(--f-display);font-size:clamp(1.05rem,3.4vw,1.45rem);letter-spacing:.14em;
+    color:var(--cream);text-transform:uppercase;margin-top:10px;
+  }
+  .globe-eyebrow em{font-style:normal;color:var(--gold-hi);}
+  .globe-status{
+    font-family:var(--f-label);font-size:.7rem;letter-spacing:.3em;text-transform:uppercase;
+    color:var(--gold);min-height:1.2em;margin-top:8px;
+  }
+  .globe-coords{
+    font-family:var(--f-label);font-size:.68rem;letter-spacing:.22em;color:var(--cream-dim);
+    min-height:1.2em;margin-top:6px;font-variant-numeric:tabular-nums;
+  }
+  .globe-loc{
+    margin-top:14px;border:1px solid rgba(205,162,71,.45);border-radius:6px;
+    background:rgba(7,4,3,.78);padding:14px 22px;max-width:min(420px,86vw);
+    opacity:0;transform:translateY(14px);transition:opacity .5s ease, transform .5s var(--ease);
+  }
+  #loader.found .globe-loc{opacity:1;transform:none;}
+  .globe-loc strong{
+    display:block;font-family:var(--f-label);font-size:.66rem;letter-spacing:.26em;
+    text-transform:uppercase;color:var(--gold-hi);margin-bottom:6px;
+  }
+  .globe-loc span{display:block;font-family:var(--f-head);font-size:1.12rem;color:var(--cream);line-height:1.45;}
+  .globe-loc .globe-open-line{font-style:italic;color:var(--gold);font-size:1rem;margin-top:4px;}
+  .globe-skip{
+    margin-top:22px;font-family:var(--f-label);font-size:.64rem;letter-spacing:.24em;text-transform:uppercase;
+    color:var(--cream-dim);background:transparent;border:1px solid rgba(205,162,71,.35);border-radius:999px;
+    padding:10px 22px;cursor:pointer;transition:color .3s ease, border-color .3s ease, background .3s ease;
+  }
+  .globe-skip:hover{color:var(--black);background:var(--gold);border-color:var(--gold);}
   @keyframes spin{to{transform:rotate(360deg);}}
-  @keyframes loaderPulse{0%,100%{opacity:.55;transform:scale(.96);}50%{opacity:1;transform:scale(1.02);}}
 
   /* ---------------- progress + cursor glow + to-top ---------------- */
   .progress{
@@ -592,14 +647,25 @@
   :focus-visible{outline:2px solid var(--gold-hi);outline-offset:3px;}
 </style>
 </head>
-<body>
+<body class="intro-open">
 
-<div id="loader" aria-hidden="true">
-  <div class="loader-box">
-    <div class="loader-ring"></div>
-    <div class="loader-ring two"></div>
-    <img class="loader-logo" src="royal-feast-logo-transparent.png" alt="">
+<div id="loader" role="dialog" aria-label="Finding Royal Feast">
+  <div class="globe-stage">
+    <canvas id="globeCanvas" width="640" height="640" aria-hidden="true"></canvas>
+    <span class="globe-flash" aria-hidden="true"></span>
+    <span class="globe-pin" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M12 21s7-6.5 7-11.5A7 7 0 0 0 5 9.5C5 14.5 12 21 12 21Z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
+    </span>
   </div>
+  <p class="globe-eyebrow">Royal <em>Feast</em></p>
+  <p class="globe-status" id="globeStatus">Scanning the world for flavour</p>
+  <p class="globe-coords" id="globeCoords" aria-hidden="true">LAT 00.00&deg; &mdash; LON 00.00&deg;</p>
+  <div class="globe-loc" id="globeLoc">
+    <strong>Location Found</strong>
+    <span>Royal Feast &mdash; 123 Kingsway Avenue, Royal Street</span>
+    <span class="globe-open-line">Opening the restaurant&hellip;</span>
+  </div>
+  <button class="globe-skip" id="globeSkip" type="button">Skip Intro</button>
 </div>
 
 <div class="progress" id="progress"></div>
@@ -1071,10 +1137,198 @@
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const fine = matchMedia('(hover: hover) and (pointer: fine)').matches;
 
-  /* ---------- preloader ---------- */
-  window.addEventListener('load', () => {
-    setTimeout(() => $('#loader').classList.add('done'), reduce ? 0 : 700);
-  });
+  /* ---------- globe intro: spin -> locate Royal Feast -> open the restaurant ---------- */
+  (() => {
+    const loader = $('#loader');
+    if (!loader) return;
+    const statusEl = $('#globeStatus');
+    const coordsEl = $('#globeCoords');
+    const canvas = $('#globeCanvas');
+    let finished = false;
+    let raf = 0;
+
+    const finish = () => {
+      if (finished) return;
+      finished = true;
+      cancelAnimationFrame(raf);
+      loader.classList.add('done');
+      document.body.classList.remove('intro-open');
+      setTimeout(() => loader.remove(), 950);
+    };
+    $('#globeSkip')?.addEventListener('click', finish);
+    addEventListener('keydown', (e) => { if (e.key === 'Escape') finish(); });
+    // Absolute failsafe: never trap a visitor behind the intro.
+    setTimeout(finish, 7500);
+
+    const ctx = canvas?.getContext('2d');
+    if (reduce || !ctx) {
+      statusEl.textContent = 'Welcome to Royal Feast';
+      setTimeout(finish, reduce ? 60 : 400);
+      if (reduce) return;
+    }
+
+    /* Dotted WebGL-style globe, drawn on canvas (no library needed). */
+    const TARGET = { lat: 21.15, lon: 79.09 };
+    const FINAL_ROT = -TARGET.lon * Math.PI / 180;
+    const START_ROT = FINAL_ROT - Math.PI * 5.25; // 2.6 turns, easing to a stop on target
+    const TILT = 0.31;
+    const D_SCAN = 1900, D_LOCATE = 3200, D_FOUND = 3250, D_OPEN = 4150, D_END = 4900;
+
+    const points = [];
+    const N = 850, GOLDEN = Math.PI * (3 - Math.sqrt(5));
+    for (let i = 0; i < N; i++) {
+      const y = 1 - (i / (N - 1)) * 2;
+      const rad = Math.sqrt(Math.max(0, 1 - y * y));
+      const th = GOLDEN * i;
+      points.push({ x: Math.cos(th) * rad, y, z: Math.sin(th) * rad });
+    }
+    const latLon = (lat, lon) => {
+      const phi = lat * Math.PI / 180, lam = lon * Math.PI / 180;
+      return { x: Math.cos(phi) * Math.sin(lam), y: Math.sin(phi), z: Math.cos(phi) * Math.cos(lam) };
+    };
+    const targetV = latLon(TARGET.lat, TARGET.lon);
+    const sources = [latLon(40.7, -74), latLon(51.5, -0.1), latLon(25.2, 55.3), latLon(1.35, 103.8), latLon(-33.9, 151.2)];
+
+    let size = 0;
+    const fit = () => {
+      const r = canvas.getBoundingClientRect();
+      const dpr = Math.min(devicePixelRatio || 1, 2);
+      size = Math.min(r.width, r.height);
+      canvas.width = Math.round(size * dpr);
+      canvas.height = Math.round(size * dpr);
+    };
+    fit();
+    addEventListener('resize', fit);
+
+    const project = (v, rot, R, cx, cy) => {
+      const cosR = Math.cos(rot), sinR = Math.sin(rot);
+      const x = v.x * cosR - v.z * sinR;
+      const z = v.x * sinR + v.z * cosR;
+      const y = v.y * Math.cos(TILT) - z * Math.sin(TILT);
+      const zz = v.y * Math.sin(TILT) + z * Math.cos(TILT);
+      return { x: cx + x * R, y: cy - y * R, front: zz };
+    };
+    const easeOutQuart = (t) => 1 - Math.pow(1 - t, 4);
+    const easeInOut = (t) => t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+
+    let phase = '';
+    let lastCoord = 0;
+    const t0 = performance.now();
+
+    const frame = (now) => {
+      if (finished) return;
+      raf = requestAnimationFrame(frame);
+      const t = now - t0;
+      const cx = canvas.width / 2, cy = canvas.height / 2;
+      const zoom = t < D_FOUND ? 1 : 1 + 0.16 * easeInOut(Math.min((t - D_FOUND) / 700, 1));
+      const Rp = (canvas.width / 2) * 0.8 * zoom;
+      const rot = START_ROT + (FINAL_ROT - START_ROT) * easeOutQuart(Math.min(t / D_LOCATE, 1));
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // atmosphere + rim
+      const atmo = ctx.createRadialGradient(cx, cy, Rp * 0.55, cx, cy, Rp * 1.22);
+      atmo.addColorStop(0, 'rgba(205,162,71,0)');
+      atmo.addColorStop(0.78, 'rgba(205,162,71,.07)');
+      atmo.addColorStop(1, 'rgba(205,162,71,0)');
+      ctx.fillStyle = atmo;
+      ctx.beginPath(); ctx.arc(cx, cy, Rp * 1.22, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = 'rgba(205,162,71,.4)';
+      ctx.lineWidth = Math.max(1, canvas.width / 640);
+      ctx.beginPath(); ctx.arc(cx, cy, Rp, 0, Math.PI * 2); ctx.stroke();
+
+      // graticule rings
+      ctx.strokeStyle = 'rgba(205,162,71,.09)';
+      for (const latDeg of [-60, -30, 0, 30, 60]) {
+        ctx.beginPath();
+        for (let i = 0; i <= 72; i++) {
+          const p = project(latLon(latDeg, (i / 72) * 360 - 180), rot, Rp, cx, cy);
+          if (i === 0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y);
+        }
+        ctx.stroke();
+      }
+
+      // dotted sphere
+      const dotBase = canvas.width / 640;
+      for (const v of points) {
+        const p = project(v, rot, Rp, cx, cy);
+        const f = p.front;
+        ctx.fillStyle = f > 0
+          ? `rgba(243,221,154,${0.18 + 0.72 * f})`
+          : 'rgba(205,162,71,.07)';
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, Math.max(0.6, dotBase * (f > 0 ? 0.9 + 1.1 * f : 0.8)), 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // arcs from world cities into the target
+      const arcP = Math.min(Math.max((t - 500) / 2200, 0), 1);
+      if (arcP > 0) {
+        ctx.strokeStyle = 'rgba(243,221,154,.5)';
+        ctx.lineWidth = Math.max(1, dotBase * 1.1);
+        for (const s of sources) {
+          ctx.beginPath();
+          const steps = 40;
+          for (let i = 0; i <= steps * arcP; i++) {
+            const k = i / steps;
+            const vx = s.x + (targetV.x - s.x) * k;
+            const vy = s.y + (targetV.y - s.y) * k;
+            const vz = s.z + (targetV.z - s.z) * k;
+            const len = Math.hypot(vx, vy, vz) || 1;
+            const lift = 1 + Math.sin(k * Math.PI) * 0.22;
+            const p = project({ x: vx / len * lift, y: vy / len * lift, z: vz / len * lift }, rot, Rp, cx, cy);
+            if (i === 0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y);
+          }
+          ctx.stroke();
+        }
+      }
+
+      // target marker + pulsing rings once the globe settles
+      const tp = project(targetV, rot, Rp, cx, cy);
+      if (t > 1400 && tp.front > 0.55) {
+        const pulse = ((now / 900) % 1);
+        ctx.strokeStyle = `rgba(243,221,154,${0.75 * (1 - pulse)})`;
+        ctx.lineWidth = Math.max(1, dotBase * 1.4);
+        ctx.beginPath(); ctx.arc(tp.x, tp.y, (8 + pulse * 34) * dotBase * zoom, 0, Math.PI * 2); ctx.stroke();
+        const g = ctx.createRadialGradient(tp.x, tp.y, 0, tp.x, tp.y, 12 * dotBase);
+        g.addColorStop(0, 'rgba(255,246,214,1)');
+        g.addColorStop(1, 'rgba(243,221,154,0)');
+        ctx.fillStyle = g;
+        ctx.beginPath(); ctx.arc(tp.x, tp.y, 12 * dotBase, 0, Math.PI * 2); ctx.fill();
+      }
+
+      // phase captions + coordinate ticker
+      const next = t < D_SCAN ? 'scan' : t < D_FOUND ? 'locate' : t < D_OPEN ? 'found' : 'open';
+      if (next !== phase) {
+        phase = next;
+        if (phase === 'locate') statusEl.textContent = 'Locking onto a location';
+        if (phase === 'found') {
+          statusEl.textContent = 'Location found';
+          coordsEl.textContent = `LAT ${TARGET.lat.toFixed(2)}\u00B0 N \u2014 LON ${TARGET.lon.toFixed(2)}\u00B0 E`;
+          loader.classList.add('found');
+        }
+        if (phase === 'open') {
+          statusEl.textContent = 'Opening Royal Feast';
+          loader.classList.add('opening');
+        }
+      }
+      if ((phase === 'scan' || phase === 'locate') && now - lastCoord > 85) {
+        lastCoord = now;
+        if (phase === 'scan') {
+          const la = (Math.random() * 160 - 80).toFixed(2);
+          const lo = (Math.random() * 360 - 180).toFixed(2);
+          coordsEl.textContent = `LAT ${la}\u00B0 \u2014 LON ${lo}\u00B0`;
+        } else {
+          const k = easeInOut(Math.min(Math.max((t - D_SCAN) / (D_LOCATE - D_SCAN), 0), 1));
+          const la = (Math.random() * 40 * (1 - k) + TARGET.lat * k).toFixed(2);
+          const lo = (Math.random() * 60 * (1 - k) + TARGET.lon * k).toFixed(2);
+          coordsEl.textContent = `LAT ${la}\u00B0 \u2014 LON ${lo}\u00B0`;
+        }
+      }
+      if (t >= D_END) finish();
+    };
+    if (!reduce && ctx) requestAnimationFrame(frame);
+  })();
 
   /* ---------- header, progress, to-top ---------- */
   const header = $('#siteHeader');
