@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://royal-feast.netlify.app/sitemap.xml
+Sitemap: https://royal-feast-restro.vercel.app/sitemap.xml
